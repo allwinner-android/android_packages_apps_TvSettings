@@ -444,10 +444,10 @@ public class NewStorageActivity extends Activity {
                 }
                 final DiskInfo disk = info.getDisk();
                 if (disk.isAdoptable()) {
-                    final Intent i = NewStorageActivity.getNewStorageLaunchIntent(context,
-                            volumeId, disk.getId());
-                    setPopupLaunchFlags(i);
-                    context.startActivity(i);
+                    //final Intent i = NewStorageActivity.getNewStorageLaunchIntent(context,
+                    //        volumeId, disk.getId());
+                    //setPopupLaunchFlags(i);
+                    //context.startActivity(i);
                     break;
                 }
             }

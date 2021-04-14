@@ -17,6 +17,7 @@
 package com.android.tv.settings;
 
 import android.app.Fragment;
+import android.view.KeyEvent;
 
 /**
  * Main settings which loads up the top level headers.
@@ -40,4 +41,13 @@ public class MainSettings extends TvSettingsActivity {
             startPreferenceFragment(fragment);
         }
     }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode == KeyEvent.KEYCODE_SETTINGS) {
+            super.finish();
+        }
+        return super.onKeyDown(keyCode,event);
+    }
+
 }

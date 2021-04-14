@@ -670,7 +670,7 @@ public class DevelopmentFragment extends LeanbackPreferenceFragment
 
     private void updatePasswordSummary() {
         try {
-            if (mBackupManager.hasBackupPassword()) {
+            if (mBackupManager!=null&&mBackupManager.hasBackupPassword()) {
                 mPassword.setSummary(R.string.local_backup_password_summary_change);
             } else {
                 mPassword.setSummary(R.string.local_backup_password_summary_none);

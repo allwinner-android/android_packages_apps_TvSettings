@@ -395,12 +395,14 @@
             android:configChanges="keyboard|keyboardHidden|navigation"
             android:excludeFromRecents="true"
             android:exported="true" />
+<!--
         <activity
             android:name=".accessories.BluetoothAccessoryActivity"
             android:theme="@style/Theme.Settings.Transparent"
             android:configChanges="keyboard|keyboardHidden|navigation"
             android:excludeFromRecents="true"
             android:exported="true" />
+-->
         <activity
             android:name=".accessories.AddAccessoryActivity"
             android:configChanges="keyboard|keyboardHidden|navigation"
@@ -416,6 +418,7 @@
             </intent-filter>
         </activity>
 
+<!--
         <receiver android:name=".accessories.BluetoothConnectionsManager" >
             <intent-filter>
                 <action android:name="android.bluetooth.device.action.ACL_CONNECTED" />
@@ -423,13 +426,15 @@
                 <action android:name="android.bluetooth.adapter.action.STATE_CHANGED" />
             </intent-filter>
         </receiver>
-
+-->
+<!--
         <receiver android:name=".accessories.BluetoothPairingRequest" >
             <intent-filter>
                 <action android:name="android.bluetooth.device.action.PAIRING_REQUEST" />
             </intent-filter>
         </receiver>
-
+-->
+<!--
         <activity
             android:name=".accessories.BluetoothPairingDialog"
             android:configChanges="keyboard|keyboardHidden|navigation"
@@ -441,6 +446,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+-->
+<!--
         <activity
             android:name=".accessories.BluetoothDevicePickerActivity"
             android:configChanges="keyboard|keyboardHidden|navigation"
@@ -452,6 +459,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+-->
         <activity
             android:name=".about.AboutActivity"
             android:theme="@style/Theme.Settings.Transparent"
@@ -536,6 +544,7 @@
             android:excludeFromRecents="true"
             android:exported="false" />
 
+<!--
         <activity android:name=".accessories.BluetoothRequestPermissionActivity"
             android:label="@string/bluetooth_permission_request"
             android:excludeFromRecents="true"
@@ -547,6 +556,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+-->
 
         <!-- Triggered when user-selected home app isn't encryption aware -->
         <activity android:name=".system.FallbackHome"
@@ -554,7 +564,7 @@
                   android:theme="@style/FallbackHome">
             <intent-filter android:priority="-1000">
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.HOME" />
+                <!--<category android:name="android.intent.category.HOME" /> -->
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
