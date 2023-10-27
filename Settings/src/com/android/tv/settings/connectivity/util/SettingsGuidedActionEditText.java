@@ -18,19 +18,26 @@ package com.android.tv.settings.connectivity.util;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.text.InputType;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.EditText;
 import android.widget.TextView;
-
+import android.view.View;
+import android.view.MotionEvent;
+import android.view.inputmethod.InputMethodManager;
 import androidx.leanback.widget.ImeKeyMonitor;
 
 /**
  * Mostly copied from {@GuidedActionEditText}, remove some code to satisfies TvSettings need.
  */
 public class SettingsGuidedActionEditText extends EditText implements ImeKeyMonitor {
+
+    private static final String TAG = "SettingsGuidedActionEditText";
     private ImeKeyMonitor.ImeKeyListener mKeyListener;
+    private View mLeaderView;
 
     public SettingsGuidedActionEditText(Context context) {
         super(context);
@@ -58,7 +65,62 @@ public class SettingsGuidedActionEditText extends EditText implements ImeKeyMoni
         if (!result) {
             result = super.onKeyPreIme(keyCode, event);
         }
+        if (keyCode == KeyEvent.KEYCODE_BACK
+            && event.getAction() == KeyEvent.ACTION_DOWN) {
+            setFocusable(false);
+        }
         return result;
+    }
+
+    public void setLeaderView(View leaderView) {
+        this.mLeaderView = leaderView;
+        if (mLeaderView != null) {
+            mLeaderView.setFocusable(false);
+            mLeaderView.setOnKeyListener(new View.OnKeyListener() {
+                @Override
+                public boolean onKey(View v, int keyCode, KeyEvent event) {
+                    if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER) {
+                        Log.d(TAG,"click ok btn.");
+                        setFocus(true);
+                    }
+                    return false;
+                }
+            });
+            mLeaderView.setOnGenericMotionListener(new View.OnGenericMotionListener() {
+                @Override
+                public boolean onGenericMotion(View view, MotionEvent event) {
+                    if(event.getActionButton() == MotionEvent.BUTTON_PRIMARY &&
+                            event.getActionMasked() == MotionEvent.ACTION_BUTTON_PRESS) {
+                        Log.d(TAG,"touch left mouse.");
+                        setFocus(true);
+                    }
+                    return true;
+                }
+            });
+        }
+    }
+
+    public void moveCursorToLast() {
+        String hint = getText().toString();
+        if (hint != null && hint.length() != 0) {
+            setSelection(hint.length());
+        }
+    }
+
+    private void setFocus(boolean focus) {
+        this.setFocusable(focus);
+        this.setFocusableInTouchMode(focus);
+        if (mLeaderView != null) {
+            mLeaderView.setFocusable(!focus);
+            mLeaderView.setFocusableInTouchMode(!focus);
+        }
+        if (focus) {
+            InputMethodManager inputManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputManager.showSoftInput(this, 0);
+            moveCursorToLast();
+            this.requestFocus();
+        }
+        this.setInputType(focus ? InputType.TYPE_CLASS_TEXT : InputType.TYPE_NULL);
     }
 
     @Override
@@ -73,7 +135,8 @@ public class SettingsGuidedActionEditText extends EditText implements ImeKeyMoni
         // Make the TextView focusable during editing, avoid the TextView gets accessibility focus
         // before editing started. see also GuidedActionAdapterGroup where setFocusable(true).
         if (!focused) {
-            setFocusable(false);
+            //setFocusable(false);
+            setFocus(false);
         }
     }
 }

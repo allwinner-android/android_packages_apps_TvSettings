@@ -36,6 +36,7 @@ import androidx.preference.TwoStatePreference;
 
 import com.android.tv.settings.R;
 import com.android.tv.settings.SettingsPreferenceFragment;
+import com.android.tv.settings.device.displaysound.AudioChannelsSelect;
 import com.android.tv.settings.overlay.FlavorUtils;
 import com.android.tv.settings.util.SliceUtils;
 import com.android.tv.twopanelsettings.slices.SlicePreference;
@@ -47,9 +48,14 @@ import com.android.tv.twopanelsettings.slices.SlicePreference;
 public class DisplaySoundFragment extends SettingsPreferenceFragment {
 
     static final String KEY_SOUND_EFFECTS = "sound_effects";
+    private static final String KEY_AUDIO_OUTPUT_MODE = "audio_output_mode";
+    private static final String KEY_ENABLE_PASS_THROUGH = "enable_pass_through";
     private static final String KEY_CEC = "cec";
 
     private AudioManager mAudioManager;
+    private Preference mAudioOutputPreference;
+    private AudioChannelsSelect mAudioSelector;
+    private TwoStatePreference mEnablePassThrough;
 
     public static DisplaySoundFragment newInstance() {
         return new DisplaySoundFragment();
@@ -64,6 +70,7 @@ public class DisplaySoundFragment extends SettingsPreferenceFragment {
     public void onAttach(Context context) {
         mAudioManager = context.getSystemService(AudioManager.class);
         super.onAttach(context);
+        mAudioSelector = new AudioChannelsSelect(context);
     }
 
     private int getPreferenceScreenResId() {
@@ -85,6 +92,10 @@ public class DisplaySoundFragment extends SettingsPreferenceFragment {
 
         final TwoStatePreference soundPref = findPreference(KEY_SOUND_EFFECTS);
         soundPref.setChecked(getSoundEffectsEnabled());
+        mEnablePassThrough = (TwoStatePreference) findPreference(KEY_ENABLE_PASS_THROUGH);
+        mAudioOutputPreference = findPreference(KEY_AUDIO_OUTPUT_MODE);
+        mEnablePassThrough.setChecked(Settings.System.getInt(getActivity().getContentResolver(),Settings.System.ENABLE_PASS_THROUGH, 0) != 0);
+        getPreferenceScreen().removePreference(soundPref);
         updateCecPreference();
     }
 
@@ -97,6 +108,16 @@ public class DisplaySoundFragment extends SettingsPreferenceFragment {
 
     @Override
     public boolean onPreferenceTreeClick(Preference preference) {
+        if (preference == mEnablePassThrough) {
+            Settings.System.putInt(getActivity().getContentResolver(), Settings.System.ENABLE_PASS_THROUGH,
+            mEnablePassThrough.isChecked() ? 1 : 0);
+            return true;
+        }
+        if (preference == mAudioOutputPreference) {
+            mAudioSelector.showChannelsSelectDialog();
+            return true;
+        }
+
         if (TextUtils.equals(preference.getKey(), KEY_SOUND_EFFECTS)) {
             final TwoStatePreference soundPref = (TwoStatePreference) preference;
             logToggleInteracted(TvSettingsEnums.DISPLAY_SOUND_SYSTEM_SOUNDS, soundPref.isChecked());

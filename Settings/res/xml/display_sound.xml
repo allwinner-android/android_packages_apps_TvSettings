@@ -47,6 +47,16 @@
         android:key="sound_effects"
         android:persistent="true"
         android:title="@string/device_sound_effects"/>
+    <!-- audio output mode -->
+    <Preference
+        android:key="audio_output_mode"
+        android:title="@string/audio_output_mode_title"/>
+    <!-- enable pass through -->
+    <CheckBoxPreference
+        android:key="enable_pass_through"
+        android:title="@string/enable_pass_through"
+        android:summary="@string/enable_pass_through_summary"
+        android:persistent="false" />
     <Preference
         android:key="advanced_sound_settings"
         android:title="@string/advanced_sound_settings_title"

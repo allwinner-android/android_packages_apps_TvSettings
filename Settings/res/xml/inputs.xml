@@ -18,18 +18,6 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/inputs_inputs">
     <PreferenceCategory
-        android:key="connected_inputs"
-        android:orderingFromXml="false"/>
-
-    <PreferenceCategory
-        android:key="standby_inputs"
-        android:orderingFromXml="false"/>
-
-    <PreferenceCategory
-        android:key="disconnected_inputs"
-        android:orderingFromXml="false"/>
-
-    <PreferenceCategory
         android:key="cec"
         android:title="@string/inputs_header_cec">
         <com.android.tv.settings.widget.SwitchWithSoundPreference
@@ -47,5 +35,30 @@
             android:persistent="true"
             android:title="@string/inputs_tv_auto_on"
             android:summary="@string/inputs_tv_auto_on_desc" />
+        <SwitchPreference
+            android:key="tv_auto_set_language"
+            android:persistent="true"
+            android:title="@string/inputs_tv_auto_set_language"
+            android:summary="@string/inputs_tv_auto_set_language_desc" />
+        <SwitchPreference
+            android:key="tv_auto_input_passthrough"
+            android:persistent="true"
+            android:title="@string/inputs_tv_auto_input_passthrough"
+            android:summary="@string/inputs_tv_auto_input_passthrough_desc" />
     </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="connected_inputs"
+        android:orderingFromXml="false"
+        android:layout="@layout/preference_category_compact_layout"/>
+
+    <PreferenceCategory
+        android:key="standby_inputs"
+        android:orderingFromXml="false"
+        android:layout="@layout/preference_category_compact_layout"/>
+
+    <PreferenceCategory
+        android:key="disconnected_inputs"
+        android:orderingFromXml="false"
+        android:layout="@layout/preference_category_compact_layout"/>
 </PreferenceScreen>

@@ -127,7 +127,7 @@ public class DevicePrefFragment extends SettingsPreferenceFragment implements
 
         final Preference inputPref = findPreference(KEY_INPUTS);
         if (inputPref != null) {
-            inputPref.setVisible(mInputSettingNeeded);
+            inputPref.setVisible(true/*mInputSettingNeeded*/);
         }
         final LongClickPreference restartPref = findPreference(KEY_REBOOT);
         if (restartPref != null) {

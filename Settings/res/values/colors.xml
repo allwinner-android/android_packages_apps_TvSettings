@@ -16,6 +16,8 @@
 <resources>
 
     <color name="normal">#FFFFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="colorPrimary">#008577</color>
     <color name="background">#FF707070</color>
     <color name="legacy_app_item_background">#1a000000</color>
     <color name="settings_background">#FF1F292E</color>

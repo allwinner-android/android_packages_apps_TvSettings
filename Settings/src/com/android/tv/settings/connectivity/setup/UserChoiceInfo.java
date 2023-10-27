@@ -44,6 +44,12 @@ public class UserChoiceInfo extends ViewModel {
     public static final int DOMAIN = 9;
     public static final int IDENTITY = 10;
     public static final int ANONYMOUS_IDENTITY = 11;
+    ///AW CODE: [feat] add constants
+    public static final int HOTSPOTNAME = 12;
+    public static final int HOTSPOTSECURITY = 13;
+    public static final int HOTSPOTPASSWORD = 14;
+    public static final int HOTSPOTAPBAND = 15;
+    ///AW: add end
     Map<Integer, Boolean> mIsPageVisible = new ArrayMap<>();
     private HashMap<Integer, String> mDataSummary = new HashMap<>();
     private HashMap<Integer, Integer> mChoiceSummary = new HashMap<>();
@@ -68,6 +74,31 @@ public class UserChoiceInfo extends ViewModel {
     public void put(@PAGE int page, int choice) {
         mChoiceSummary.put(page, choice);
     }
+
+    ///AW CODE: [feat] add containsPage and get functions
+    /**
+     * Check if the Hashmap contains the summary of a particular page.
+     *
+     * @param page the queried page
+     * @return true if contains.
+     */
+    public boolean containsPage(@PAGE int page) {
+        return mDataSummary.containsKey(page);
+    }
+
+    /**
+     * Get summary of a page.
+     *
+     * @param page The queried page.
+     * @return The summary of the page.
+     */
+    public String get(@PAGE int page) {
+        if (!mDataSummary.containsKey(page)) {
+            return "";
+        }
+        return mDataSummary.get(page).toString();
+    }
+    ///AW: add end
 
     /**
      * Check if the summary of the queried page matches with expected string.
@@ -253,6 +284,12 @@ public class UserChoiceInfo extends ViewModel {
             DOMAIN,
             IDENTITY,
             ANONYMOUS_IDENTITY,
+        ///AW CODE: [feat] use the defined constants
+            HOTSPOTNAME,
+            HOTSPOTSECURITY,
+            HOTSPOTPASSWORD,
+            HOTSPOTAPBAND,
+        ///AW: add end
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface PAGE {

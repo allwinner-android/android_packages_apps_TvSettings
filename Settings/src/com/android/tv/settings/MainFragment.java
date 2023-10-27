@@ -45,6 +45,7 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.SystemProperties;
 import android.service.settings.suggestions.Suggestion;
 import android.telephony.CellSignalStrength;
 import android.text.TextUtils;
@@ -108,6 +109,8 @@ public class MainFragment extends PreferenceControllerFragment implements
     static final String KEY_PRIVACY = "privacy";
     @VisibleForTesting
     static final String KEY_DISPLAY_AND_SOUND = "display_and_sound";
+    static final String KEY_GENERAL_SETTINGS = "general_settings";
+    static final String KEY_BLUETOOTH = "bluetooth";
     private static final String KEY_CHANNELS_AND_INPUTS = "channels_and_inputs";
 
     private static final String ACTION_ACCOUNTS = "com.android.tv.settings.ACCOUNTS";
@@ -200,6 +203,14 @@ public class MainFragment extends PreferenceControllerFragment implements
                 accessoryPreference.setVisible(false);
             }
         }
+        ///AW CODE: [feat] add general_settings and Direct get supported state from feature
+        PreferenceCategory general_settings =
+                (PreferenceCategory)findPreference(KEY_GENERAL_SETTINGS);
+        general_settings.removePreference(findPreference(KEY_ACCESSORIES));
+        if (!supportBluetooth()) {
+            general_settings.removePreference(findPreference(KEY_BLUETOOTH));
+        }
+        ///AW:add end
         if (FlavorUtils.isTwoPanel(getContext())) {
             Preference displaySoundPref = findPreference(KEY_DISPLAY_AND_SOUND);
             if (displaySoundPref != null) {
@@ -387,7 +398,12 @@ public class MainFragment extends PreferenceControllerFragment implements
                 getContext(), connectedDevicesSlicePreference.getUri())) {
             connectedDevicesSlicePreference.setVisible(true);
             connectedDevicesPreference.setVisible(false);
-            accessoryPreference.setVisible(false);
+            ///AW CODE: [feat] add conditional statement
+            if (accessoryPreference != null) {
+                accessoryPreference.setVisible(false);
+            }
+            //accessoryPreference.setVisible(false);
+            ///AW: add end
             ProviderInfo pkgInfo = getProviderInfo(getContext(),
                     Uri.parse(connectedDevicesSlicePreference.getUri()).getAuthority());
             if (pkgInfo != null) {
@@ -404,7 +420,12 @@ public class MainFragment extends PreferenceControllerFragment implements
             Intent intent = new Intent(ACTION_CONNECTED_DEVICES);
             ResolveInfo info = systemIntentIsHandled(getContext(), intent);
             connectedDevicesPreference.setVisible(info != null);
-            accessoryPreference.setVisible(info == null);
+            ///AW CODE: [feat] add conditional statement
+            if (accessoryPreference != null) {
+                accessoryPreference.setVisible(info == null);
+            }
+            //accessoryPreference.setVisible(info == null);
+            ///AW: add end
             if (info != null) {
                 updateConnectedDevicePref(
                         info.activityInfo.packageName, connectedDevicesPreference);

@@ -30,7 +30,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
-
+import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -44,6 +44,7 @@ import com.android.tv.settings.connectivity.security.WifiSecurityHelper;
 import com.android.tv.settings.connectivity.util.GuidedActionsAlignUtil;
 import com.android.tv.settings.connectivity.util.State;
 import com.android.tv.settings.connectivity.util.StateMachine;
+import com.android.tv.settings.connectivity.util.SettingsGuidedActionEditText;
 
 import java.util.List;
 
@@ -99,8 +100,10 @@ public class EnterPasswordState implements State {
         private static final String SUBMIT_TOKEN = "done";
         private UserChoiceInfo mUserChoiceInfo;
         private StateMachine mStateMachine;
-        private EditText mTextInput;
+        private SettingsGuidedActionEditText mTextInput;
+        private LinearLayout mllRootTextInput;
         private CheckBox mCheckBox;
+        private LinearLayout mllRootPsdCheckbox;
         private GuidedAction mPasswordAction;
         private boolean mEditFocused = false;
 
@@ -141,6 +144,8 @@ public class EnterPasswordState implements State {
                     if (action.getId() == ACTION_ID_CHECKBOX) {
                         PasswordViewHolder checkBoxVH = (PasswordViewHolder) vh;
                         mCheckBox = checkBoxVH.mCheckbox;
+                        mllRootPsdCheckbox = (LinearLayout) vh.itemView.findViewById(
+                                                        R.id.ll_root_password_checkbox);
                         checkBoxVH.itemView.setOnClickListener(view -> {
                             mCheckBox.setChecked(!mCheckBox.isChecked());
                             if (mPasswordAction != null) {
@@ -148,12 +153,19 @@ public class EnterPasswordState implements State {
                             }
                         });
                         mCheckBox.setChecked(mUserChoiceInfo.isPasswordHidden());
+                        mllRootPsdCheckbox.setFocusable(false);
+                        mCheckBox.setFocusable(false);
                     } else if (action.getId() == GuidedAction.ACTION_ID_CONTINUE) {
-                        mTextInput = (EditText) vh.itemView.findViewById(
+                        mllRootTextInput = (LinearLayout) vh.itemView.findViewById(
+                                                        R.id.ll_root_setup_text_input);
+                        mTextInput = (SettingsGuidedActionEditText) vh.itemView.findViewById(
                                 R.id.guidedactions_item_title);
                         mTextInput.setImeOptions(
                                 EditorInfo.IME_ACTION_DONE | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
                         openInEditMode(action);
+                        mTextInput.setFocusable(true);
+                        mTextInput.setLeaderView(mllRootTextInput);
+                        mTextInput.moveCursorToLast();
                     }
                 }
 

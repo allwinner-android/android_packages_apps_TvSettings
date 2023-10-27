@@ -243,6 +243,10 @@ public class ConnectState implements State {
                     case WifiConfiguration.NetworkSelectionStatus.DISABLED_DHCP_FAILURE:
                         notifyListener(StateMachine.RESULT_UNKNOWN_ERROR);
                         break;
+                    case WifiConfiguration.NetworkSelectionStatus.DISABLED_NO_INTERNET_TEMPORARY:
+                    case WifiConfiguration.NetworkSelectionStatus.DISABLED_NO_INTERNET_PERMANENT:
+                        notifyListener(StateMachine.RESULT_SUCCESS);
+                        break;
                     default:
                         mUserChoiceInfo.setConnectionFailedStatus(
                                 UserChoiceInfo.ConnectionFailedStatus.UNKNOWN);

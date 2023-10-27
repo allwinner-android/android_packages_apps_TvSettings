@@ -27,10 +27,13 @@ import androidx.leanback.widget.GuidanceStylist;
 import androidx.leanback.widget.GuidedAction;
 import androidx.leanback.widget.GuidedActionsStylist;
 import androidx.lifecycle.ViewModelProviders;
+import android.widget.RelativeLayout;
+import android.widget.EditText;
 
 import com.android.tv.settings.R;
 import com.android.tv.settings.connectivity.util.State;
 import com.android.tv.settings.connectivity.util.StateMachine;
+import com.android.tv.settings.connectivity.util.SettingsInputAddressEditText;
 
 import java.util.List;
 
@@ -75,6 +78,8 @@ public class EnterSsidState implements State {
         private UserChoiceInfo mUserChoiceInfo;
         private StateMachine mStateMachine;
         private GuidedAction mAction;
+        private RelativeLayout mRlRoot;
+        private SettingsInputAddressEditText mEtTitle;
 
         @NonNull
         @Override
@@ -103,6 +108,17 @@ public class EnterSsidState implements State {
                 @Override
                 public int onProvideItemLayoutId() {
                     return R.layout.setup_text_input_item;
+                }
+
+                @Override
+                public void onBindViewHolder(ViewHolder vh, GuidedAction action) {
+                    super.onBindViewHolder(vh, action);
+                    mRlRoot = (RelativeLayout) vh.itemView.findViewById(
+                        R.id.rl_root_setup_text_input);
+                    mEtTitle = (SettingsInputAddressEditText) vh.itemView.findViewById(
+                        R.id.guidedactions_item_title);
+                    mEtTitle.setLeaderView(mRlRoot);
+                    mEtTitle.moveCursorToLast();
                 }
             };
         }

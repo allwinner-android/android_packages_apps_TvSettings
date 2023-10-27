@@ -240,6 +240,8 @@
     <string name="device_storage">Storage</string>
     <!-- Preference which shows reset settings. [CHAR LIMIT=50] -->
     <string name="device_reset">Factory reset</string>
+    <!-- Preference which shows recovery settings. [CHAR LIMIT=50] -->
+    <string name="device_recovery">Recovery Mode</string>
     <!-- Preference which manages backup settings. [CHAR LIMIT=50] -->
     <string name="device_backup_restore">Backup &amp; Restore</string>
     <!-- Preference which shows reset options [CHAR LIMIT=50] -->
@@ -291,6 +293,8 @@
     <string name="surround_sound_auto_summary">When selected, the system will allow apps to select
         any sound format that is supported by your device chain. Apps may choose a format that is
         not the highest-quality format.</string>
+    <!-- Text for a radio button that if selected will cause the device to never use a surround sound format. [CHAR LIMIT=50] -->
+    <string name="surround_sound_none_summary">None: Never use surround sound</string>
     <!-- Title for a radio button that if selected will cause the device to never use a surround
        sound format. [CHAR LIMIT=50] -->
     <string name="surround_sound_none_title">None: Never use surround sound</string>
@@ -1914,6 +1918,7 @@
     <string name="inputs_tv_auto_on">TV auto power on</string>
     <!-- Description of TV auto power on [CHAR LIMIT=50] -->
     <string name="inputs_tv_auto_on_desc">Power on the TV with HDMI device</string>
+
     <!-- Header for connected TV input(s) [CHAR LIMIT=30] -->
     <plurals name="inputs_header_connected_input">
         <item quantity="one">Connected Input</item>
@@ -2131,6 +2136,12 @@
     <!-- Factory reset screen, button on screen after user selects Reset phone button -->
     <string name="confirm_factory_reset_device">Erase everything</string>
 
+    <!-- Enter recovery mode tips -->
+    <string name="recovery_mode_description">This will enter recovery mode</string>
+    <!-- Enter recovery mode screen, message on screen after user selects enter button -->
+    <string name="confirm_recovery_mode_description">Enter recovery mode, are you sure?</string>
+    <!-- Enter recovery mode screen, button on screen after user selects Enter button -->
+    <string name="confirm_recovery_mode_device">Enter</string>
 
     <!-- Title for screen where user selects a name for their device [CHAR LIMIT=NONE] -->
     <string name="select_device_name_title">Choose a name for your <xliff:g id="devicemodel" example="Nexus Player">%1$s</xliff:g></string>
@@ -2508,4 +2519,8 @@
     <string name="font_sans_serif_light" translatable="false">sans-serif-light</string>
     <string name="font_sans_serif_thin" translatable="false">sans-serif-thin</string>
     <string name="font_sans_serif_condensed" translatable="false">sans-serif-condensed</string>
+
+
+    <!-- AW CODE: [feat] add location item title -->
+    <string name="location_title">Location</string>
 </resources>

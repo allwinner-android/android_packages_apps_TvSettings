@@ -93,6 +93,14 @@ public class AboutFragment extends SettingsPreferenceFragment {
     private static final String KEY_RESET = "reset";
     private static final String KEY_RESET_OPTIONS = "reset_options";
 
+    /// AW CODE: [feat] support show bigdroid version
+    private static final String BIGDROID_VERSION = "bigdroid_version_number";
+    // add prop name
+    private static final String BIGDROID_VERSION_PROP_NAME = "ro.build.Bigdroid.version";
+    // add default value
+    private static final String BIGDROID_VERSION_NUMBER_DEFAULT_VALUE = "BigdroidOS 2.0.0";
+    /// AW CODE add end
+
     static final int TAPS_TO_BE_A_DEVELOPER = 7;
 
     long[] mHits = new long[3];
@@ -145,6 +153,14 @@ public class AboutFragment extends SettingsPreferenceFragment {
         final Preference firmwareVersionPref = findPreference(KEY_FIRMWARE_VERSION);
         firmwareVersionPref.setSummary(Build.VERSION.RELEASE_OR_CODENAME);
         firmwareVersionPref.setEnabled(true);
+
+        /// AW CODE: [feat] support show bigdroid version
+        String bigdroidVersion = SystemProperties.get(BIGDROID_VERSION_PROP_NAME);
+        final Preference bigdroidVersionPref = findPreference(BIGDROID_VERSION);
+        bigdroidVersionPref.setSummary(
+                    bigdroidVersion == null ? BIGDROID_VERSION_NUMBER_DEFAULT_VALUE : bigdroidVersion);
+        bigdroidVersionPref.setEnabled(true);
+        /// AW CODE add end
 
         final Preference securityPatchPref = findPreference(KEY_SECURITY_PATCH);
         final String patch = DeviceInfoUtils.getSecurityPatch();

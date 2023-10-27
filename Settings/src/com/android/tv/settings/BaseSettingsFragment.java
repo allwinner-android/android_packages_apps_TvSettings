@@ -95,6 +95,17 @@ public abstract class BaseSettingsFragment extends LeanbackSettingsFragmentCompa
         }
     }
 
+    // AW CODE [fix]: Pressing btn_right of mouse will directly exit after using mouse to enter the multi-level menu of TvSettings
+    public void onBackPressed() {
+        FragmentManager fragmentManager = getChildFragmentManager();
+        if (fragmentManager.getBackStackEntryCount() > 0) {
+            fragmentManager.popBackStack();
+        } else {
+            getActivity().finish();
+        }
+    }
+    // AW CODE end
+
     @Override
     public boolean onPreferenceDisplayDialog(@NonNull PreferenceFragmentCompat caller,
             Preference pref) {

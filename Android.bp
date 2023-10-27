@@ -17,28 +17,20 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
-android_app {
-    name: "TvSettings",
+java_defaults {
+    name: "Tvsettings_defaults",
     manifest: "Settings/AndroidManifest.xml",
     srcs: [
         "Settings/src/**/*.java",
         "Settings/src/**/I*.aidl",
     ],
-     aidl: {
-            local_include_dirs: ["Settings/src"],
-        },
-    resource_dirs: ["Settings/res"],
-    defaults: ["SettingsLibDefaults"],
-    platform_apis: true,
-    certificate: "platform",
-    system_ext_specific: true,
-    required: ["privapp_whitelist_com.android.tv.settings"],
-    optimize: {
-        proguard_flags_files: ["Settings/proguard.cfg"],
+    aidl: {
+        local_include_dirs: ["Settings/src"],
     },
-    privileged: true,
+    resource_dirs: ["Settings/res"],
     static_libs: [
         "androidx-constraintlayout_constraintlayout",
+        "androidx-constraintlayout_constraintlayout-solver",
         "androidx.recyclerview_recyclerview",
         "androidx.preference_preference",
         "androidx.appcompat_appcompat",
@@ -52,51 +44,41 @@ android_app {
         "tvsettings-logtags",
         "TwoPanelSettingsLib",
         "zxing-core-1.7",
+        "softwinner.audio.static",
+        "softwinner.display.output",
     ],
+    privileged: true,
+    certificate: "platform",
+    platform_apis: true,
+    required: ["privapp_whitelist_com.android.tv.settings"],
+    optimize: {
+        proguard_flags_files: ["Settings/proguard.cfg"],
+        enabled: false,
+    }
+}
+
+android_app {
+    name: "TvSettings",
+    defaults: [
+        "SettingsLibDefaults",
+        "Tvsettings_defaults",
+    ],
+    system_ext_specific: true,
+    overrides: ["Settings"],
 }
 
 // Two-panel TvSettings
 android_app {
     name: "TvSettingsTwoPanel",
-    manifest: "Settings/AndroidManifest.xml",
-    srcs: [
-        "Settings/src/**/*.java",
-        "Settings/src/**/I*.aidl",
+    defaults: [
+        "SettingsLibDefaults",
+        "Tvsettings_defaults",
     ],
-     aidl: {
-            local_include_dirs: ["Settings/src"],
-        },
-    // Resources in res-twopanel should be applied last so they take precedence
     resource_dirs: [
-        "Settings/res",
         "Settings/res-twopanel",
     ],
     overrides: ["TvSettings"],
-    defaults: ["SettingsLibDefaults"],
-    platform_apis: true,
-    certificate: "platform",
     system_ext_specific: true,
-    required: ["privapp_whitelist_com.android.tv.settings"],
-    optimize: {
-        proguard_flags_files: ["Settings/proguard.cfg"],
-    },
-    privileged: true,
-    static_libs: [
-        "androidx-constraintlayout_constraintlayout",
-        "androidx.recyclerview_recyclerview",
-        "androidx.preference_preference",
-        "androidx.appcompat_appcompat",
-        "androidx.legacy_legacy-preference-v14",
-        "androidx.leanback_leanback-preference",
-        "androidx.leanback_leanback",
-        "androidx.lifecycle_lifecycle-extensions",
-        "androidx.lifecycle_lifecycle-common-java8",
-        "androidx.annotation_annotation",
-        "statslog-tvsettings",
-        "tvsettings-logtags",
-        "TwoPanelSettingsLib",
-        "zxing-core-1.7",
-    ],
     jacoco: {
         include_filter: [
             "com.android.tv.settings.*",

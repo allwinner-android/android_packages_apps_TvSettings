@@ -18,6 +18,73 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:custom="http://schemas.android.com/apk/res-auto"
     android:title="@string/advanced_display_settings_title">
+    <PreferenceCategory
+        android:key="hdmi_setting"
+        android:title="@string/hdmi_setting">
+        <ListPreference
+            android:key="hdmi_output_mode"
+            android:title="@string/hdmi_output_mode"
+            android:summary="@string/hdmi_output_mode_summary"
+            android:entries="@array/hdmi_output_mode_entries"
+            android:entryValues="@array/hdmi_output_mode_values" />
+        <SeekBarPreference
+            android:key="hdmi_percentage"
+            android:title="@string/display_percentage_title"
+            android:summary = "@string/display_percentage_summary" />
+        <Preference
+            android:key="hdmi_percentage_entry"
+            android:title="@string/display_percentage_title"
+            android:summary = "@string/display_percentage_summary" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="cvbs_setting"
+        android:title="@string/cvbs_setting">
+        <ListPreference
+            android:key="cvbs_output_mode"
+            android:title="@string/cvbs_output_mode_title"
+            android:summary="@string/cvbs_output_mode_summary"
+            android:entries="@array/cvbs_output_mode_entries"
+            android:entryValues="@array/cvbs_output_mode_values" />
+        <SeekBarPreference
+            android:key="cvbs_percentage"
+            android:title="@string/display_percentage_title"
+            android:summary = "@string/display_percentage_summary" />
+        <Preference
+            android:key="cvbs_percentage_entry"
+            android:title="@string/display_percentage_title"
+            android:summary = "@string/display_percentage_summary" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="hdmi_advance_setting"
+        android:title="@string/hdmi_advance_setting">
+        <ListPreference
+            android:key="hdmi_color_mode"
+            android:title="@string/hdmi_color_space_and_deep"
+            android:summary="@string/current_mode_summary"
+            android:entries="@array/hdmi_color_entries"
+            android:entryValues="@array/hdmi_color_values" />
+
+        <ListPreference
+            android:key="hdr_mode"
+            android:title="@string/tv_hdr_mode"
+            android:summary="@string/current_mode_summary"
+            android:entries="@array/hdmi_hdr_entries"
+            android:entryValues="@array/hdmi_hdr_values" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+            android:key="screen_orientation_settings"
+            android:title="@string/screen_orientation_settings">
+            <ListPreference
+                 android:key="screen_rotation"
+                 android:title="@string/screen_rotation_title"
+                 android:summary="@string/screen_rotation_summary"
+                 android:entries="@array/screen_rotation_entries"
+                 android:entryValues="@array/screen_rotation_values" />
+     </PreferenceCategory>
+
     <com.android.tv.settings.widget.SwitchWithSoundPreference
         android:key="game_mode"
         android:persistent="true"

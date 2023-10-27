@@ -19,6 +19,8 @@ package com.android.tv.settings.connectivity.setup;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.RelativeLayout;
+import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -31,6 +33,7 @@ import androidx.lifecycle.ViewModelProviders;
 import com.android.tv.settings.R;
 import com.android.tv.settings.connectivity.util.State;
 import com.android.tv.settings.connectivity.util.StateMachine;
+import com.android.tv.settings.connectivity.util.SettingsInputAddressEditText;
 
 import java.util.List;
 
@@ -71,6 +74,8 @@ public class ProxyHostNameState implements State {
         private StateMachine mStateMachine;
         private AdvancedOptionsFlowInfo mAdvancedOptionsFlowInfo;
         private GuidedAction mAction;
+        private RelativeLayout mRlRoot;
+        private SettingsInputAddressEditText mEtTitle;
 
         @NonNull
         @Override
@@ -90,6 +95,18 @@ public class ProxyHostNameState implements State {
                 public int onProvideItemLayoutId() {
                     return R.layout.setup_text_input_item;
                 }
+
+                @Override
+                public void onBindViewHolder(ViewHolder vh, GuidedAction action) {
+                    super.onBindViewHolder(vh, action);
+                    mRlRoot = (RelativeLayout) vh.itemView.findViewById(
+                          R.id.rl_root_setup_text_input);
+                    mEtTitle = (SettingsInputAddressEditText) vh.itemView.findViewById(
+                          R.id.guidedactions_item_title);
+                    mEtTitle.setLeaderView(mRlRoot);
+                    mEtTitle.moveCursorToLast();
+                }
+
             };
         }
 

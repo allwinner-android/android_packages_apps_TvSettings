@@ -21,6 +21,7 @@ import static com.android.tv.settings.util.InstrumentationUtils.logEntrySelected
 import android.app.ActivityManager;
 import android.app.tvsettings.TvSettingsEnums;
 import android.content.pm.PackageManager;
+import android.os.SystemProperties;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.storage.StorageManager;
@@ -232,7 +233,11 @@ public class StorageFragment extends SettingsPreferenceFragment {
         final long downloadsSize = totalValues(details.mediaSize.get(currentUser),
                 Environment.DIRECTORY_DOWNLOADS);
 
-        mAvailablePref.setSize(Math.max(0L, details.availSize - cachePartitionSize()));
+        if ("homlet".equals(SystemProperties.get("ro.product.platform", null)) || "homlet".equals(SystemProperties.get("ro.build.characteristics", null))) {
+            mAvailablePref.setSize(Math.max(0L, details.availSize));//cache partition is nonexistent
+        } else {
+            mAvailablePref.setSize(Math.max(0L, details.availSize - cachePartitionSize()));
+        }
         mAppsUsagePref.setSize(details.appsSize.get(currentUser));
         mDcimUsagePref.setSize(dcimSize);
         mMusicUsagePref.setSize(musicSize);

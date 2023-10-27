@@ -18,7 +18,11 @@ package com.android.tv.settings.widget;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiInfo;
 import android.widget.ImageView;
+
+import android.util.Log;
 
 import androidx.preference.PreferenceViewHolder;
 
@@ -26,21 +30,54 @@ import com.android.settingslib.wifi.AccessPoint;
 import com.android.tv.settings.R;
 import com.android.tv.settings.overlay.FlavorUtils;
 
+import java.util.List;
+
 /**
  * Preference for overriding wifi icons
  */
 public class TvAccessPointPreference extends AccessPointPreference {
+    private final static String TAG = "TvAccessPointPreference";
 
     private AccessPoint mAccessPoint;
+    private static final int[] WIFI6_PIE = {
+        R.drawable.ic_wifi6_signal_0,
+        R.drawable.ic_wifi6_signal_1,
+        R.drawable.ic_wifi6_signal_2,
+        R.drawable.ic_wifi6_signal_3,
+        R.drawable.ic_wifi6_signal_4
+    };
 
     public TvAccessPointPreference(AccessPoint accessPoint, Context context,
             AccessPointPreference.UserBadgeCache cache, boolean forSavedNetworks) {
         super(accessPoint, context, cache, forSavedNetworks);
         mAccessPoint = accessPoint;
+        Log.d(TAG, "TvAccessPointPreference accessPoint=" + accessPoint);
     }
 
     @Override
     protected void updateIcon(int level, Context context) {
+        ///AW CODE: [feat] support wifi6 logo
+        AccessPoint ap = super.mAccessPoint;
+        Log.d(TAG, "updateIcon level="+level + ", ap="+(ap));
+        if (ap != null) {
+            List<ScanResult.InformationElement> infos = ap.getInformationElements();
+
+            boolean isWifiSixType = false;
+            Log.d(TAG, "infos=" + infos);
+            if (infos != null) {
+                for (ScanResult.InformationElement ie : infos) {
+                    if ((ie.getId() == 0xFF) && (ie.getIdExt() == 0x23)) {
+                        isWifiSixType = true;
+                    }
+                }
+                Log.d(TAG, "isWifiSixType="+isWifiSixType);
+                if (isWifiSixType) {
+                    setIcon(WIFI6_PIE[level]);
+                    return;
+                }
+            }
+        }
+        ///AW add end
         if (FlavorUtils.isTwoPanel(getContext())) {
             switch (level) {
                 case 4:

@@ -57,7 +57,7 @@ public class AccessPointPreference extends Preference {
   private boolean mShowDivider;
 
   private boolean mForSavedNetworks = false;
-  private AccessPoint mAccessPoint;
+  protected AccessPoint mAccessPoint;
   private int mLevel;
   private CharSequence mContentDescription;
   private int mDefaultIconResId;

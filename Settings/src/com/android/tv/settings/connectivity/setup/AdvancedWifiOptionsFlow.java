@@ -42,12 +42,16 @@ public class AdvancedWifiOptionsFlow {
     public static final int START_IP_SETTINGS_PAGE = 1;
     /** Flag that set advanced flow start with proxy settings page */
     public static final int START_PROXY_SETTINGS_PAGE = 2;
+    /** Flag that set advanced flow start with pppoe settings page */
+    public static final int START_PPPOE_SETUP_PAGE = 3;
     private static final String TAG = "AdvancedWifiOptionsFlow";
 
     @IntDef({
             START_DEFAULT_PAGE,
             START_IP_SETTINGS_PAGE,
-            START_PROXY_SETTINGS_PAGE
+            START_PROXY_SETTINGS_PAGE,
+            START_PROXY_SETTINGS_PAGE,
+            START_PPPOE_SETUP_PAGE
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface START_PAGE {
@@ -93,6 +97,10 @@ public class AdvancedWifiOptionsFlow {
         State dns2State = new Dns2State(activity);
         State ipSettingsInvalidState = new IpSettingsInvalidState(activity);
         State advancedFlowCompleteState = new AdvancedFlowCompleteState(activity);
+        State pppoeSetupState = new PppoeSetupState(activity);
+        State pppoeUsernameState = new PppoeUsernameState(activity);
+        State pppoePasswordState = new PppoePasswordState(activity);
+        State pppoeSetupInvalidState = new PppoeSetupInvalidState(activity);
 
         // Define the transitions between external states and internal states for advanced options
         // flow.
@@ -110,6 +118,9 @@ public class AdvancedWifiOptionsFlow {
                 break;
             case START_PROXY_SETTINGS_PAGE :
                 startState = proxySettingsState;
+                break;
+            case START_PPPOE_SETUP_PAGE :
+                startState = pppoeSetupState;
                 break;
             default:
                 Log.wtf(TAG, "Got a wrong start state");
@@ -258,6 +269,40 @@ public class AdvancedWifiOptionsFlow {
                 ipSettingsInvalidState,
                 StateMachine.CONTINUE,
                 ipSettingsState
+        );
+        /* Pppoe Settings */
+        stateMachine.addState(
+                pppoeSetupState,
+                StateMachine.ADVANCED_FLOW_COMPLETE,
+                advancedFlowCompleteState
+        );
+
+        stateMachine.addState(
+                pppoeSetupState,
+                StateMachine.CONTINUE,
+                pppoeUsernameState
+        );
+
+        stateMachine.addState(
+                pppoeUsernameState,
+                StateMachine.CONTINUE,
+                pppoePasswordState
+        );
+
+        stateMachine.addState(
+                pppoePasswordState,
+                StateMachine.ADVANCED_FLOW_COMPLETE,
+                advancedFlowCompleteState);
+        stateMachine.addState(
+                pppoePasswordState,
+                StateMachine.PPPOE_SETUP_INVALID,
+                pppoeSetupInvalidState
+        );
+        /* PPPoE Setup Invalid */
+        stateMachine.addState(
+                pppoeSetupInvalidState,
+                StateMachine.CONTINUE,
+                pppoeSetupState
         );
     }
 }

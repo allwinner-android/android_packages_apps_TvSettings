@@ -22,16 +22,23 @@ import android.media.tv.TvInputManager;
 import android.os.Bundle;
 import android.os.UserHandle;
 import android.provider.Settings;
+import android.provider.Settings.Global;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.Keep;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceGroup;
 import androidx.preference.TwoStatePreference;
 
+import com.android.internal.app.LocalePicker;
+import com.android.internal.app.LocalePicker.LocaleInfo;
+import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
 import com.android.tv.settings.R;
 import com.android.tv.settings.SettingsPreferenceFragment;
 
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -39,7 +46,8 @@ import java.util.Set;
  * Fragment to control TV input settings.
  */
 @Keep
-public class InputsFragment extends SettingsPreferenceFragment {
+public class InputsFragment extends SettingsPreferenceFragment implements
+        Preference.OnPreferenceChangeListener {
 
     private static final String KEY_CONNECTED_INPUTS = "connected_inputs";
     private static final String KEY_STANDBY_INPUTS = "standby_inputs";
@@ -47,6 +55,8 @@ public class InputsFragment extends SettingsPreferenceFragment {
     private static final String KEY_HDMI_CONTROL = "hdmi_control";
     private static final String KEY_DEVICE_AUTO_OFF = "device_auto_off";
     private static final String KEY_TV_AUTO_ON = "tv_auto_on";
+    private static final String KEY_TV_AUTO_SET_LANGUAGE = "tv_auto_set_language";
+    private static final String KEY_TV_AUTO_INPUT_PASSTHROUGH = "tv_auto_input_passthrough";
 
     private PreferenceGroup mConnectedGroup;
     private PreferenceGroup mStandbyGroup;
@@ -55,6 +65,8 @@ public class InputsFragment extends SettingsPreferenceFragment {
     private TwoStatePreference mHdmiControlPref;
     private TwoStatePreference mDeviceAutoOffPref;
     private TwoStatePreference mTvAutoOnPref;
+    private TwoStatePreference mTvAutoSetLanguage;
+    private TwoStatePreference mTvAutoInputPassThrough;
 
     private TvInputManager mTvInputManager;
     private Map<String, String> mCustomLabels;
@@ -90,15 +102,21 @@ public class InputsFragment extends SettingsPreferenceFragment {
         mDisconnectedGroup = (PreferenceGroup) findPreference(KEY_DISCONNECTED_INPUTS);
 
         mHdmiControlPref = (TwoStatePreference) findPreference(KEY_HDMI_CONTROL);
+        mHdmiControlPref.setOnPreferenceChangeListener(this);
         mDeviceAutoOffPref = (TwoStatePreference) findPreference(KEY_DEVICE_AUTO_OFF);
         mTvAutoOnPref = (TwoStatePreference) findPreference(KEY_TV_AUTO_ON);
+        mTvAutoSetLanguage = (TwoStatePreference) findPreference(KEY_TV_AUTO_SET_LANGUAGE);
+        mTvAutoInputPassThrough = (TwoStatePreference) findPreference(KEY_TV_AUTO_INPUT_PASSTHROUGH);
     }
 
     private void refresh() {
         mHdmiControlPref.setChecked(readCecOption(Settings.Global.HDMI_CONTROL_ENABLED));
+        setPreferncesEnabled(mHdmiControlPref.isChecked());
         mDeviceAutoOffPref.setChecked(readCecOption(
                 Settings.Global.HDMI_CONTROL_AUTO_DEVICE_OFF_ENABLED));
         mTvAutoOnPref.setChecked(readCecOption(Settings.Global.HDMI_CONTROL_AUTO_WAKEUP_ENABLED));
+        mTvAutoSetLanguage.setChecked(readCecOption(Settings.Global.HDMI_CONTROL_AUTO_SET_LANGUAGE));
+        mTvAutoInputPassThrough.setChecked(readCecOption(Settings.Global.HDMI_CONTROL_AUTO_INPUT_PASSTHROUGH));
 
         for (TvInputInfo info : mTvInputManager.getTvInputList()) {
             if (info.getType() == TvInputInfo.TYPE_TUNER
@@ -138,7 +156,6 @@ public class InputsFragment extends SettingsPreferenceFragment {
                     break;
             }
         }
-
         final int connectedCount = mConnectedGroup.getPreferenceCount();
         mConnectedGroup.setTitle(getResources().getQuantityString(
                 R.plurals.inputs_header_connected_input,
@@ -161,12 +178,26 @@ public class InputsFragment extends SettingsPreferenceFragment {
     @Override
     public boolean onPreferenceTreeClick(Preference preference) {
         final String key = preference.getKey();
+        Log.d("TvSettings","AWAW onPreferenceTreeClick key: " + key);
         if (key == null) {
             return super.onPreferenceTreeClick(preference);
         }
         switch (key) {
             case KEY_HDMI_CONTROL:
                 writeCecOption(Settings.Global.HDMI_CONTROL_ENABLED, mHdmiControlPref.isChecked());
+                int hdmiControlEnabled = readCecOption(Settings.Global.HDMI_CONTROL_ENABLED) ? 1 : 0;
+                Log.d("TvSettings","AWAW hdmiControlEnabled: " + hdmiControlEnabled);
+                if(mHdmiControlPref.isChecked() == false) {
+                    writeCecOption(Settings.Global.HDMI_CONTROL_AUTO_DEVICE_OFF_ENABLED,false);
+                    writeCecOption(Settings.Global.HDMI_CONTROL_AUTO_WAKEUP_ENABLED,false);
+                    writeCecOption(Settings.Global.HDMI_CONTROL_AUTO_SET_LANGUAGE,false);
+                    writeCecOption(Settings.Global.HDMI_CONTROL_AUTO_INPUT_PASSTHROUGH,false);
+
+                    mDeviceAutoOffPref.setChecked(false);
+                    mTvAutoOnPref.setChecked(false);
+                    mTvAutoSetLanguage.setChecked(false);
+                    mTvAutoInputPassThrough.setChecked(false);
+                }
                 return true;
             case KEY_DEVICE_AUTO_OFF:
                 writeCecOption(Settings.Global.HDMI_CONTROL_AUTO_DEVICE_OFF_ENABLED,
@@ -176,12 +207,42 @@ public class InputsFragment extends SettingsPreferenceFragment {
                 writeCecOption(Settings.Global.HDMI_CONTROL_AUTO_WAKEUP_ENABLED,
                         mTvAutoOnPref.isChecked());
                 return true;
+            case KEY_TV_AUTO_SET_LANGUAGE:
+                writeCecOption(Settings.Global.HDMI_CONTROL_AUTO_SET_LANGUAGE, mTvAutoSetLanguage.isChecked());
+ //               String lan = Settings.Global.getString(getContext().getContentResolver(), Settings.Global.HDMI_CONTROL_TV_LANGUAGE);
+ //               if(lan == null)
+                String lan = "len";
+                Log.d("cec", "lan = " + lan);
+                Locale currentLocale = getContext().getResources().getConfiguration().locale;
+                Log.d("cec", "current = " + currentLocale.getISO3Language());
+                if (currentLocale.getISO3Language().equals(lan) ||
+                        (currentLocale.getISO3Language().equals("zho") && lan.equals("chi"))) {
+                    // Do not switch language if the new language is the same as the current one.
+                    // This helps avoid accidental country variant switching from en_US to en_AU
+                    // due to the limitation of CEC. See the warning below.
+                    return true;
+                }
+                final List<LocaleInfo> localeInfos = LocalePicker.getAllAssetLocales(getContext(), false);
+                for(LocaleInfo localeInfo : localeInfos) {
+                    if(localeInfo.getLocale().getISO3Language().equals(lan)) {
+                        LocalePicker.updateLocale(localeInfo.getLocale());
+                    }
+                    else if (localeInfo.getLocale().getISO3Language().equals("zho") &&
+                            lan.equals("chi")) {
+                        LocalePicker.updateLocale(localeInfo.getLocale());
+                    }
+                }
+                return true;
+            case KEY_TV_AUTO_INPUT_PASSTHROUGH:
+                writeCecOption(Settings.Global.HDMI_CONTROL_AUTO_INPUT_PASSTHROUGH,
+                        mTvAutoInputPassThrough.isChecked());
+                return true;
         }
         return super.onPreferenceTreeClick(preference);
     }
 
     private boolean readCecOption(String key) {
-        return Settings.Global.getInt(getContext().getContentResolver(), key, 1) == 1;
+        return Settings.Global.getInt(getContext().getContentResolver(), key, 0) == 1;
     }
 
     private void writeCecOption(String key, boolean value) {
@@ -215,5 +276,23 @@ public class InputsFragment extends SettingsPreferenceFragment {
 
     public static String makeInputPrefKey(TvInputInfo inputInfo) {
         return "InputPref:" + inputInfo.getId();
+    }
+
+    public int getMetricsCategory() {
+        return MetricsEvent.SETTINGS_TV_INPUTS_CATEGORY;
+    }
+
+    @Override
+    public boolean onPreferenceChange(Preference preference, Object newValue) {
+            boolean isChecked = (boolean)newValue;
+            setPreferncesEnabled(isChecked);
+            return true;
+    }
+
+    private void setPreferncesEnabled(boolean value){
+        mDeviceAutoOffPref.setEnabled(value);
+        mTvAutoOnPref.setEnabled(value);
+        mTvAutoSetLanguage.setEnabled(value);
+        mTvAutoInputPassThrough.setEnabled(value);
     }
 }

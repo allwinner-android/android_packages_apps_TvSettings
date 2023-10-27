@@ -20,6 +20,9 @@ import android.net.InetAddresses;
 import android.net.IpConfiguration;
 import android.net.LinkAddress;
 import android.net.ProxyInfo;
+import android.net.PppoeManager;
+import android.content.Context;
+import android.util.Log;
 import android.net.StaticIpConfiguration;
 import android.text.TextUtils;
 
@@ -28,6 +31,7 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.android.net.module.util.ProxyUtils;
 import com.android.tv.settings.R;
+import com.android.tv.settings.connectivity.PppoeFragment;
 import com.android.tv.settings.connectivity.WifiConfigHelper;
 import com.android.tv.settings.connectivity.setup.AdvancedOptionsFlowInfo;
 
@@ -39,6 +43,12 @@ import java.util.ArrayList;
  * Class that helps process proxy and IP settings.
  */
 public class AdvancedOptionsFlowUtil {
+    public static String pppoeinterface;
+    public static String pppoeusername;
+    public static String pppoepassword;
+    public static String preinterface;
+    private static PppoeManager mPppoeManager;
+    private static final String TAG = "AdvancedOptionsFlowUtil";
 
     /**
      * Process Proxy Settings.
@@ -162,6 +172,73 @@ public class AdvancedOptionsFlowUtil {
             mIpConfiguration.setStaticIpConfiguration(staticIpBuilder.build());
         } else {
             mIpConfiguration.setStaticIpConfiguration(null);
+        }
+        return 0;
+    }
+
+    /**
+     * Process PPPoE Setup.
+     *
+     * @param activity the activity that calls this method.
+     * @return 0 if successful, or other different values based on the result.
+     */
+    public static int processPppoeSetup(FragmentActivity activity) {
+        AdvancedOptionsFlowInfo flowInfo = ViewModelProviders
+                .of(activity)
+                .get(AdvancedOptionsFlowInfo.class);
+        mPppoeManager = (PppoeManager)activity.getSystemService(Context.PPPOE_SERVICE);
+        String getinterface  = flowInfo.get(AdvancedOptionsFlowInfo.PPPOE_INTERFACE);
+        if (getinterface == null || TextUtils.isEmpty(getinterface)) {
+            return -1;
+        }
+        String username = flowInfo.get(AdvancedOptionsFlowInfo.PPPOE_USERNAME);
+        if (username == null || TextUtils.isEmpty(username)) {
+            return -1;
+        }
+        String password = flowInfo.get(AdvancedOptionsFlowInfo.PPPOE_PASSWORD);
+        if (password == null || TextUtils.isEmpty(password)) {
+            return -1;
+        }
+        pppoeinterface = getinterface;
+        pppoeusername = username;
+        pppoepassword = password;
+        Log.w(TAG, "interface is : " + pppoeinterface);
+        Log.w(TAG, "preinterface is : " + preinterface);
+        Log.w(TAG, "username  is : " + pppoeusername);
+        if (!pppoeinterface.equals(preinterface)) {
+            if (mPppoeManager.isPppoeEnabled()) {
+                Log.d(TAG, "Saved,but pppoe already enabled");
+                Thread disConnectThread = new Thread(new Runnable() {
+                    public void run() {
+                        if (mPppoeManager.getPppoeState(preinterface)
+                                != PppoeManager.PPPOE_STATE_DISCONNECTED) {
+                            Log.d(TAG, "Saved,disconnectPppoe");
+                            mPppoeManager.disconnectPppoe(preinterface);
+                        }
+                    }
+                });
+                disConnectThread.start();
+                PppoeFragment.mEnablePppoePref.setChecked(false);
+            }
+        }
+        return 0;
+    }
+
+    public static int processProxyNone(FragmentActivity activity) {
+        AdvancedOptionsFlowInfo flowInfo = ViewModelProviders
+                .of(activity)
+                .get(AdvancedOptionsFlowInfo.class);
+        IpConfiguration mIpConfiguration = flowInfo.getIpConfiguration();
+        boolean hasProxySettings =
+                (!flowInfo.containsPage(AdvancedOptionsFlowInfo.ADVANCED_OPTIONS)
+                        || !flowInfo.choiceChosen(
+                                activity.getString(R.string.wifi_action_advanced_no),
+                                AdvancedOptionsFlowInfo.ADVANCED_OPTIONS))
+                && !flowInfo.choiceChosen(activity.getString(R.string.wifi_action_proxy_none),
+                                            AdvancedOptionsFlowInfo.PROXY_SETTINGS);
+        if (hasProxySettings) {
+            mIpConfiguration.setProxySettings(IpConfiguration.ProxySettings.NONE);
+            mIpConfiguration.setHttpProxy(null);
         }
         return 0;
     }

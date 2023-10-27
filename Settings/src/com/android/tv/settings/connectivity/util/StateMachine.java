@@ -68,6 +68,12 @@ public class StateMachine extends ViewModel {
     public static final int RESULT_CAPTIVE_PORTAL = 26;
     public static final int RESTART = 27;
     public static final int FINISH_SECURITY_FLOW = 28;
+    ///AW CODE: [feat] add constants
+    public static final int SOFTAP_NAME_INVALID = 29;
+    public static final int SOFTAP_PASSWORD_INVALID = 30;
+    public static final int PPPOE_SETUP = 31;
+    public static final int PPPOE_SETUP_INVALID = 32;
+    ///AW: add end
 
     @IntDef({
             ADD_START,
@@ -97,7 +103,12 @@ public class StateMachine extends ViewModel {
             ENTER_ADVANCED_FLOW,
             EXIT_ADVANCED_FLOW,
             RESULT_CAPTIVE_PORTAL,
-            FINISH_SECURITY_FLOW})
+            FINISH_SECURITY_FLOW,
+        ///AW CODE: [feat] use the defined constants
+            SOFTAP_NAME_INVALID,
+            SOFTAP_PASSWORD_INVALID,
+            PPPOE_SETUP_INVALID})
+        ///AW: add end
     @Retention(RetentionPolicy.SOURCE)
     public @interface Event {
     }

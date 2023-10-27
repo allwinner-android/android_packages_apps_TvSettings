@@ -44,6 +44,9 @@ public class AdvancedOptionsFlowInfo extends ViewModel {
     public static final int GATEWAY = 9;
     public static final int DNS1 = 10;
     public static final int DNS2 = 11;
+    public static final int PPPOE_INTERFACE = 12;
+    public static final int PPPOE_USERNAME = 13;
+    public static final int PPPOE_PASSWORD = 14;
 
     @IntDef({
             ADVANCED_OPTIONS,
@@ -56,7 +59,10 @@ public class AdvancedOptionsFlowInfo extends ViewModel {
             NETWORK_PREFIX_LENGTH,
             GATEWAY,
             DNS1,
-            DNS2
+            DNS2,
+            PPPOE_INTERFACE,
+            PPPOE_USERNAME,
+            PPPOE_PASSWORD
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface PAGE {

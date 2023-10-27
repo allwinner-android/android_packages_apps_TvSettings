@@ -25,6 +25,7 @@ import android.transition.Slide;
 import android.transition.Transition;
 import android.transition.TransitionManager;
 import android.util.Log;
+
 import android.view.Gravity;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -34,6 +35,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
 import com.android.tv.settings.overlay.FlavorUtils;
+import static com.android.tv.settings.overlay.FeatureFactoryImpl.SettingsFragment;
 
 public abstract class TvSettingsActivity extends FragmentActivity {
     private static final String TAG = "TvSettingsActivity";
@@ -72,7 +74,6 @@ public abstract class TvSettingsActivity extends FragmentActivity {
                         .commitNow();
                 return;
             }
-
             final ViewGroup root = findViewById(android.R.id.content);
             root.getViewTreeObserver().addOnPreDrawListener(
                     new ViewTreeObserver.OnPreDrawListener() {
@@ -151,6 +152,16 @@ public abstract class TvSettingsActivity extends FragmentActivity {
             super.finish();
         }
     }
+
+    // AW CODE [fix]: Pressing btn_right of mouse will directly exit after using mouse to enter the multi-level menu of TvSettings
+    @Override
+    public void onBackPressed() {
+        SettingsFragment fragment = (SettingsFragment) getSupportFragmentManager().findFragmentByTag(SETTINGS_FRAGMENT_TAG);
+        if (fragment != null) {
+            fragment.onBackPressed();
+        }
+    }
+    // AW CODE end
 
     protected abstract Fragment createSettingsFragment();
 

@@ -38,10 +38,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 import android.widget.TextView;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.leanback.preference.LeanbackPreferenceFragmentCompat;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceGroup;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceGroup;
@@ -56,6 +59,7 @@ import com.android.tv.settings.util.SettingsPreferenceUtil;
 import com.android.tv.settings.widget.SettingsViewModel;
 import com.android.tv.settings.widget.TsPreference;
 import com.android.tv.twopanelsettings.TwoPanelSettingsFragment;
+import android.util.ArrayMap;
 
 /**
  * A {@link LeanbackPreferenceFragmentCompat} that has hooks to observe fragment lifecycle events
@@ -65,6 +69,7 @@ public abstract class SettingsPreferenceFragment extends LeanbackPreferenceFragm
         implements LifecycleOwner,
         TwoPanelSettingsFragment.PreviewableComponentCallback {
     private final Lifecycle mLifecycle = new Lifecycle(this);
+    private ArrayMap<String, Preference> mPreferenceCache;
 
     // Rename getLifecycle() to getSettingsLifecycle() as androidx Fragment has already implemented
     // getLifecycle(), overriding here would cause unexpected crash in framework.
@@ -277,4 +282,32 @@ public abstract class SettingsPreferenceFragment extends LeanbackPreferenceFragm
     protected int getPageId() {
         return TvSettingsEnums.PAGE_CLASSIC_DEFAULT;
     }
+    ///AW CODE: [feat] add cacheRemoveAllPrefs function
+    protected void cacheRemoveAllPrefs(PreferenceGroup group) {
+        mPreferenceCache = new ArrayMap<String, Preference>();
+        final int N = group.getPreferenceCount();
+        for (int i = 0; i < N; i++) {
+            Preference p = group.getPreference(i);
+            if (TextUtils.isEmpty(p.getKey())) {
+                continue;
+            }
+            mPreferenceCache.put(p.getKey(), p);
+        }
+    }
+
+    protected Preference getCachedPreference(String key) {
+        return mPreferenceCache != null ? mPreferenceCache.remove(key) : null;
+    }
+
+    protected void removeCachedPrefs(PreferenceGroup group) {
+        for (Preference p : mPreferenceCache.values()) {
+            group.removePreference(p);
+        }
+        mPreferenceCache = null;
+    }
+
+    protected int getCachedCount() {
+        return mPreferenceCache != null ? mPreferenceCache.size() : 0;
+    }
+    ///AW: add end
 }

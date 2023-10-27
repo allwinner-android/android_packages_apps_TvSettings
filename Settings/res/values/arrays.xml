@@ -22,6 +22,7 @@
         <item>30 minutes</item>
         <item>1 hour</item>
         <item>2 hours</item>
+        <item>Never</item>
     </string-array>
 
     <!-- Do not translate. -->
@@ -37,6 +38,8 @@
         <item>3600000</item>
         <!-- Do not translate. -->
         <item>7200000</item>
+        <!-- Do not translate. -->
+        <item>2147483647</item>
     </string-array>
 
     <!-- Display settings.  The delay after the daydream starts when the screen goes off. -->
@@ -229,6 +232,20 @@
         <item>80FFFFFF</item>
         <item>C0FFFFFF</item>
         <item>FFFFFFFF</item>
+    </string-array>
+
+    <!-- List entries for controlling surround sound passthrough setting -->
+    <string-array name="surround_sound_entries" translatable="false">
+        <item>@string/surround_sound_auto_summary</item>
+        <item>@string/surround_sound_none_summary</item>
+        <item>@string/surround_sound_manual_summary</item>
+    </string-array>
+
+    <!-- Entry values for surround sound preference -->
+    <string-array name="surround_sound_entry_values" translatable="false">
+        <item>auto</item>
+        <item>never</item>
+        <item>manual</item>
     </string-array>
 
     <!-- Titles for font scale preference. [CHAR LIMIT=35] -->

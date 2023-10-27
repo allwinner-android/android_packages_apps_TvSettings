@@ -27,7 +27,12 @@ import android.app.tvsettings.TvSettingsEnums;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.PackageInfo;
 import android.content.pm.ResolveInfo;
+import android.content.ContentValues;
+import android.content.ContentResolver;
+import android.database.Cursor;
+import android.net.Uri;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
@@ -56,10 +61,12 @@ import com.android.tv.settings.util.SliceUtils;
 import com.android.tv.settings.widget.CustomContentDescriptionSwitchPreference;
 import com.android.tv.settings.widget.TvAccessPointPreference;
 import com.android.tv.twopanelsettings.slices.SlicePreference;
+import android.util.Log;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.List;
 
 /**
  * Fragment for controlling network connectivity
@@ -68,12 +75,23 @@ import java.util.Set;
 public class NetworkFragment extends SettingsPreferenceFragment implements
         ConnectivityListener.Listener, ConnectivityListener.WifiNetworkListener,
         AccessPoint.AccessPointListener {
+    private final String TAG = "NetworkFragment";
 
     private static final String KEY_WIFI_ENABLE = "wifi_enable";
     private static final String KEY_WIFI_LIST = "wifi_list";
     private static final String KEY_WIFI_COLLAPSE = "wifi_collapse";
     private static final String KEY_WIFI_OTHER = "wifi_other";
     private static final String KEY_WIFI_ADD = "wifi_add";
+    ///AW CODE: [feat]: add some constants
+    private static final String KEY_WIFI_HOTSPOT = "wifi_hotspot";
+    private static final String KEY_PPPOE = "pppoe";
+    private static final String KEY_LOCATION = "location";
+
+    private static final String NETWORK_FLAG = "network_location_opt_in";
+    private static final String PACKAGE_NAME_GMS = "com.google.android.gms";
+    private String mNetworkLocationValue = "0";
+    private boolean mLocationHasValue = false;
+    ///AW: add end
     private static final String KEY_WIFI_ADD_EASYCONNECT = "wifi_add_easyconnect";
     private static final String KEY_WIFI_ALWAYS_SCAN = "wifi_always_scan";
     private static final String KEY_ETHERNET = "ethernet";
@@ -99,6 +117,11 @@ public class NetworkFragment extends SettingsPreferenceFragment implements
     private CollapsibleCategory mWifiNetworksCategory;
     private Preference mCollapsePref;
     private RestrictedPreference mAddPref;
+    ///AW CODE: [feat] add Preference Object
+    private Preference mHotspotPref;
+    private Preference mPppoePref;
+    private TwoStatePreference mLocationPref;
+    ///AW: add end
     private RestrictedPreference mAddEasyConnectPref;
     private TwoStatePreference mAlwaysScan;
     private PreferenceCategory mEthernetCategory;
@@ -179,6 +202,16 @@ public class NetworkFragment extends SettingsPreferenceFragment implements
         mWifiNetworksCategory = (CollapsibleCategory) findPreference(KEY_WIFI_LIST);
         mCollapsePref = findPreference(KEY_WIFI_COLLAPSE);
         mAddPref = (RestrictedPreference) findPreference(KEY_WIFI_ADD);
+        ///AW CODE: [feat] add mHotspotPref
+        mHotspotPref = findPreference(KEY_WIFI_HOTSPOT);
+        mLocationPref = findPreference(KEY_LOCATION);
+        setNetworkLocationValue();
+        if (mNetworkLocationValue.equals("1")) {
+            mLocationPref.setChecked(true);
+        } else {
+            mLocationPref.setChecked(false);
+        }
+        ///AW:add end
         mAddEasyConnectPref = (RestrictedPreference) findPreference(KEY_WIFI_ADD_EASYCONNECT);
         mAlwaysScan = (TwoStatePreference) findPreference(KEY_WIFI_ALWAYS_SCAN);
         mWifiOther = (PreferenceCategory) findPreference(KEY_WIFI_OTHER);
@@ -280,9 +313,81 @@ public class NetworkFragment extends SettingsPreferenceFragment implements
             case KEY_WIFI_ADD_EASYCONNECT:
                 startActivity(AddWifiNetworkActivity.createEasyConnectIntent(getContext()));
                 break;
+            case KEY_LOCATION:
+                updateProvider();
+                break;
         }
         return super.onPreferenceTreeClick(preference);
     }
+    /// AW CODE: [feat] support location
+    private boolean isPackageContain( Context context, String packageName ) {
+        final PackageManager packageManager = context.getPackageManager();
+
+        List<PackageInfo> pinfo = packageManager.getInstalledPackages(0);
+        for ( int i = 0; i < pinfo.size(); i++ ) {
+            if(pinfo.get(i).packageName.contains(packageName)){
+                Log.d(TAG, packageName + "exists in packagemanager.");
+                return true;
+            }
+        }
+        return false;
+    }
+    private void setNetworkLocationValue() {
+        Log.d(TAG, "setNetworkLocationValue");
+        if (!isPackageContain(getContext(), PACKAGE_NAME_GMS)) {
+            Log.d(TAG, "mLocationPref was set to be inVisible");
+            mLocationPref.setVisible(false);
+            return;
+        } else {
+            mLocationPref.setVisible(true);
+        }
+        boolean hasValue = false;
+        ContentResolver cr = getActivity().getContentResolver();
+        Uri uri = Uri.parse("content://com.google.settings/partner");
+        try (Cursor cursor = cr.query(uri,
+                null, null, null, null)) {
+            if (cursor != null) {
+                Log.w("zhouyuchen", "cursor: " + cursor.getCount());
+                for (int i = 0; i < cursor.getCount(); i++) {
+                    cursor.moveToNext();
+                    String key = cursor.getString(cursor.getColumnIndex("name"));
+                    if (NETWORK_FLAG.equals(key))
+                    {
+                        String value = cursor.getString(cursor.getColumnIndex("value"));
+                        mLocationHasValue = true;
+                        // 依据value打开或者关闭switch
+                        mNetworkLocationValue = value;
+                        Log.d(TAG, "mNetworkLocationValue=" + mNetworkLocationValue);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to query data from Provider.", e);
+        }
+    }
+    private void updateProvider() {
+        Log.d(TAG, "updateProvider");
+        ContentResolver cr = getActivity().getContentResolver();
+        Uri uri = Uri.parse("content://com.google.settings/partner");
+        if (mNetworkLocationValue.equals("0")) {
+            mNetworkLocationValue = "1";
+        } else {
+            mNetworkLocationValue = "0";
+        }
+        ContentValues cv = new ContentValues();
+        cv.put("value", mNetworkLocationValue);
+        try {
+            if (mLocationHasValue) {
+                cr.update(uri, cv, "name=?" , new String[] {NETWORK_FLAG});
+            } else {
+                cv.put("name", NETWORK_FLAG);
+                cr.insert(uri, cv);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    /// AW add end
 
     private boolean isConnected() {
         NetworkInfo activeNetworkInfo = mConnectivityManager.getActiveNetworkInfo();

@@ -20,30 +20,59 @@ import static android.provider.Settings.Secure.MINIMAL_POST_PROCESSING_ALLOWED;
 
 import static com.android.tv.settings.util.InstrumentationUtils.logToggleInteracted;
 
+import android.content.Context;
 import android.app.tvsettings.TvSettingsEnums;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.Keep;
 import androidx.preference.Preference;
 import androidx.preference.SwitchPreference;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.android.settingslib.core.AbstractPreferenceController;
+import com.android.tv.settings.PreferenceControllerFragment;
 import com.android.tv.settings.R;
-import com.android.tv.settings.SettingsPreferenceFragment;
+import com.android.tv.settings.device.display.HdmiAdvancePreferenceController;
+import com.android.tv.settings.device.display.HdmiPreferenceController;
+import com.android.tv.settings.device.display.CvbsPreferenceController;
+import com.android.tv.settings.device.display.ScreenOrientationController;
 
 /**
  * The "Advanced display settings" screen in TV Settings.
  */
 @Keep
-public class AdvancedDisplayFragment extends SettingsPreferenceFragment {
+public class AdvancedDisplayFragment extends PreferenceControllerFragment {
     private static final String KEY_GAME_MODE = "game_mode";
 
+    public static AdvancedDisplayFragment newInstance() {
+        return new AdvancedDisplayFragment();
+    }
+
     @Override
-    public void onCreatePreferences(Bundle bundle, String s) {
-        setPreferencesFromResource(R.xml.advanced_display, null);
+    protected int getPreferenceScreenResId() {
+        return R.xml.advanced_display;
+    }
+
+    @Override
+    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+        super.onCreatePreferences(savedInstanceState, rootKey);
         SwitchPreference gameModePreference = findPreference(KEY_GAME_MODE);
         gameModePreference.setChecked(getGameModeStatus() == 1);
+    }
+
+    @Override
+    protected List<AbstractPreferenceController> onCreatePreferenceControllers(Context context) {
+        final List<AbstractPreferenceController> controllers = new ArrayList<>();
+        controllers.add(new HdmiPreferenceController(context));
+        controllers.add(new CvbsPreferenceController(context));
+        controllers.add(new ScreenOrientationController(context));
+        controllers.add(new HdmiAdvancePreferenceController(context));
+        return controllers;
     }
 
     @Override
